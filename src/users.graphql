@@ -1,0 +1,48 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3",
+        import: ["@key", "@shareable","@external"])
+
+directive @key(fields: String!) on OBJECT | INTERFACE
+
+directive @external on OBJECT | FIELD_DEFINITION
+
+scalar DateTime
+
+type User @key(fields: "id"){
+  # Example field (placeholder)
+  id: ID!
+  firstname: String
+  lastname: String
+  email: String
+  username: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input CreateUserInput {
+  # Example field (placeholder)
+  firstname: String
+  lastname: String
+  email: String
+  username: String
+  createdAt: DateTime
+}
+
+input UpdateUserInput {
+  firstname: String
+  lastname: String
+  email: String
+  username: String
+  updatedAt: DateTime
+}
+
+extend type Query {
+  users: [User]!
+  user(id: String!): User
+}
+
+type Mutation {
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
+  removeUser(id: String!): User
+}
