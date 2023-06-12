@@ -7,7 +7,7 @@ import {
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
-import { User } from './graphql';
+import { User } from '../graphql';
 
 @Resolver('User')
 export class UsersResolver {

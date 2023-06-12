@@ -1,14 +1,13 @@
-import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersResolver } from './users.resolver';
-import { GraphQLISODateTime, GraphQLModule } from '@nestjs/graphql';
 import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { Module } from '@nestjs/common';
+import { GraphQLISODateTime, GraphQLModule } from '@nestjs/graphql';
+import { AuthModule } from './auth/auth.module';
 import { PrismaService } from 'prisma/prisma.service';
-
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
@@ -19,8 +18,11 @@ import { PrismaService } from 'prisma/prisma.service';
       resolvers: {
         DateTime: GraphQLISODateTime,
       },
+      context: ({ req, res }): any => ({ req, res }),
     }),
+    UsersModule,
+    AuthModule,
   ],
-  providers: [UsersResolver, UsersService, PrismaService],
+  providers: [PrismaService],
 })
-export class UsersModule {}
+export class AppModule {}

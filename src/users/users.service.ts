@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserInput: Prisma.UserCreateInput) {
+  async create(createUserInput: Prisma.UserCreateInput) {
     const now = new Date().toISOString();
+    const pass = await this.hashPassword(createUserInput.password);
+
+    createUserInput.password = pass;
     createUserInput.createdAt = now;
     return this.prisma.user.create({
       data: createUserInput,
@@ -40,5 +44,30 @@ export class UsersService {
     return this.prisma.user.delete({
       where: userWhereUniqueInput,
     });
+  }
+
+  findOneByEmail(email: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+  }
+
+  findOneByUsername(username: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        username: username,
+      },
+    });
+  }
+
+  isAdmin(permissions: string[]) {
+    return permissions.includes('admin');
+  }
+
+  private async hashPassword(password) {
+    const hash = await bcrypt.hash(password, 10);
+    return hash;
   }
 }
