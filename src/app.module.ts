@@ -5,7 +5,7 @@ import {
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { Module } from '@nestjs/common';
 import { GraphQLISODateTime, GraphQLModule } from '@nestjs/graphql';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
 import { PrismaService } from 'prisma/prisma.service';
 import { UsersModule } from './users/users.module';
 @Module({
@@ -21,7 +21,6 @@ import { UsersModule } from './users/users.module';
       context: ({ req, res }): any => ({ req, res }),
     }),
     UsersModule,
-    AuthModule,
   ],
   providers: [PrismaService],
 })
