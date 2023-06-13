@@ -11,14 +11,16 @@ datasource db {
 }
 
 model User {
-  id              String @id @default(uuid()) @map("_id") 
+  id              String        @id @default(uuid()) @map("_id") 
   firstname       String
   lastname        String
-  email           String
+  email           String        @unique
   password        String
-  username        String
+  username        String        @unique
   permissions     String[]
   passwordReset   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now())
+  activationToken String        @unique @default(uuid()) 
+  isActive        Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now())
 }

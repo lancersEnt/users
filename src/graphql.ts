@@ -58,12 +58,16 @@ export class User {
     username?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
     passwordReset?: Nullable<string>;
+    isActive?: Nullable<boolean>;
+    activationToken?: Nullable<string>;
     createdAt?: Nullable<DateTime>;
     updatedAt?: Nullable<DateTime>;
 }
 
 export abstract class IMutation {
     abstract createUser(createUserInput: CreateUserInput): User | Promise<User>;
+
+    abstract activateUserAccount(activationToken: string): User | Promise<User>;
 
     abstract updateUser(id: string, updateUserInput: UpdateUserInput): User | Promise<User>;
 

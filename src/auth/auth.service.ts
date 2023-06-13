@@ -44,18 +44,21 @@ export class AuthService {
     } catch (error) {
       return undefined;
     }
+    const isActive = userToAttempt.isActive;
 
     if (isMatch) {
-      const token = this.createJwt(userToAttempt!).token;
-      const result: any = {
-        user: userToAttempt!,
-        token,
-      };
-      await this.usersService.update(
-        { id: userToAttempt.id },
-        { updatedAt: new Date() },
-      );
-      return result;
+      if (isActive) {
+        const token = this.createJwt(userToAttempt!).token;
+        const result: any = {
+          user: userToAttempt!,
+          token,
+        };
+        await this.usersService.update(
+          { id: userToAttempt.id },
+          { updatedAt: new Date() },
+        );
+        return result;
+      } else throw new Error('user not active, activate your account first');
     }
     return null;
   }

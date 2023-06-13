@@ -2,30 +2,41 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserInput: Prisma.UserCreateInput) {
-    const now = new Date().toISOString();
     const pass = await this.hashPassword(createUserInput.password);
 
     createUserInput.password = pass;
-    createUserInput.createdAt = now;
-    return this.prisma.user.create({
-      data: createUserInput,
-    });
+    try {
+      return this.prisma.user.create({
+        data: createUserInput,
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   findAll() {
-    return this.prisma.user.findMany();
+    try {
+      return this.prisma.user.findMany();
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   findOne(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({
-      where: userWhereUniqueInput,
-    });
+    try {
+      return this.prisma.user.findUnique({
+        where: userWhereUniqueInput,
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   update(
@@ -34,39 +45,79 @@ export class UsersService {
   ) {
     const now = new Date().toISOString();
     updateUserInput.updatedAt = now;
-    return this.prisma.user.update({
-      where: userWhereUniqueInput,
-      data: updateUserInput,
-    });
+    try {
+      return this.prisma.user.update({
+        where: userWhereUniqueInput,
+        data: updateUserInput,
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   remove(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.delete({
-      where: userWhereUniqueInput,
-    });
+    try {
+      return this.prisma.user.delete({
+        where: userWhereUniqueInput,
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   findOneByEmail(email: string) {
-    return this.prisma.user.findFirst({
-      where: {
-        email: email,
-      },
-    });
+    try {
+      return this.prisma.user.findFirst({
+        where: {
+          email: email,
+        },
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   findOneByUsername(username: string) {
-    return this.prisma.user.findFirst({
-      where: {
-        username: username,
-      },
-    });
+    try {
+      return this.prisma.user.findFirst({
+        where: {
+          username: username,
+        },
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   isAdmin(permissions: string[]) {
     return permissions.includes('admin');
   }
 
-  private async hashPassword(password) {
+  async activate(activationToken: string) {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          activationToken,
+        },
+      });
+      if (user && user.isActive) throw new Error('account already activated');
+      return this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          isActive: true,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async hashPassword(password: string) {
+    if (password.length < 8)
+      throw new Error('password length should be at least 8');
     const hash = await bcrypt.hash(password, 10);
     return hash;
   }

@@ -37,11 +37,14 @@
     "concurrently": "^8.2.0",
     "cookie-parser": "^1.4.6",
     "g": "^2.0.1",
+    "i": "^0.3.7",
+    "npm": "^9.7.1",
     "passport-jwt": "^4.0.1",
     "prisma": "^4.15.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "ts-morph": "^18.0.0"
+    "ts-morph": "^18.0.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

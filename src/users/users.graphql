@@ -18,6 +18,8 @@ type User @key(fields: "id"){
   username: String
   permissions: [String]
   passwordReset: String
+  isActive: Boolean
+  activationToken: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -50,6 +52,7 @@ extend type Query {
 
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
+  activateUserAccount(activationToken: String!): User!
   updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
   removeUser(id: String!): User
 }

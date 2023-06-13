@@ -9,7 +9,6 @@ import { GraphQLISODateTime, GraphQLModule } from '@nestjs/graphql';
 import { PrismaService } from 'prisma/prisma.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 @Module({
   imports: [
@@ -18,12 +17,6 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
       typePaths: ['./**/*.graphql'],
-      formatError: (error: GraphQLError) => {
-        const graphQLFormattedError: GraphQLFormattedError = {
-          message: JSON.stringify(error),
-        };
-        return graphQLFormattedError;
-      },
       resolvers: {
         DateTime: GraphQLISODateTime,
       },

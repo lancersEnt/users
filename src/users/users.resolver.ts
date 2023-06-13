@@ -14,8 +14,18 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation('createUser')
-  create(@Args('createUserInput') createUserInput: Prisma.UserCreateInput) {
-    return this.usersService.create(createUserInput);
+  async create(
+    @Args('createUserInput') createUserInput: Prisma.UserCreateInput,
+  ) {
+    const exists = await this.usersService.findOneByEmail(
+      createUserInput.email,
+    );
+    if (exists === null) return this.usersService.create(createUserInput);
+    throw new Error('User with given email already exists');
+  }
+  @Mutation('activateUserAccount')
+  activateUserAccount(activationToken: string) {
+    return this.usersService.activate(activationToken);
   }
 
   @Query('users')
