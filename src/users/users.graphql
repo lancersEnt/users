@@ -8,12 +8,15 @@ directive @external on OBJECT | FIELD_DEFINITION
 
 scalar DateTime
 
+scalar EmailAddress
+
+
 type User @key(fields: "id"){
   # Example field (placeholder)
   id: ID!
   firstname: String
   lastname: String
-  email: String
+  email: EmailAddress
   password: String
   username: String
   permissions: [String]
@@ -28,7 +31,7 @@ input CreateUserInput {
   # Example field (placeholder)
   firstname: String
   lastname: String
-  email: String
+  email: EmailAddress
   password: String
   username: String
   permissions: [String]
@@ -38,7 +41,7 @@ input CreateUserInput {
 input UpdateUserInput {
   firstname: String
   lastname: String
-  email: String
+  email: EmailAddress
   password: String
   username: String
   permissions: [String]
@@ -51,7 +54,7 @@ extend type Query {
 }
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput!): User!
+  signup(createUserInput: CreateUserInput!): User!
   activateUserAccount(activationToken: String!): User!
   updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
   removeUser(id: String!): User

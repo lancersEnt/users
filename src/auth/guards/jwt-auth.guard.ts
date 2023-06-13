@@ -1,7 +1,6 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { log } from 'console';
 
 @Injectable()
 // In order to use AuthGuard together with GraphQL, you have to extend
@@ -13,7 +12,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return request;
   }
 
-  handleRequest(err: any, user: any, info: any) {
+  handleRequest(err: any, user: any) {
     return user;
   }
 }

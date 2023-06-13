@@ -1,3 +1,13 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3",
+        import: ["@key", "@shareable","@external"])
+
+directive @key(fields: String!) on OBJECT | INTERFACE
+
+directive @external on OBJECT | FIELD_DEFINITION
+
+scalar EmailAddress
+
 extend type Query {
   login(user: LoginUserInput!): LoginResult!
   refreshToken: String!
@@ -10,6 +20,6 @@ type LoginResult {
 
 input LoginUserInput {
   username: String
-  email: String
+  email: EmailAddress
   password: String!
 }

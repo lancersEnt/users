@@ -13,8 +13,8 @@ import { User } from '../graphql';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation('createUser')
-  async create(
+  @Mutation('signup')
+  async signup(
     @Args('createUserInput') createUserInput: Prisma.UserCreateInput,
   ) {
     const exists = await this.usersService.findOneByEmail(
@@ -24,8 +24,8 @@ export class UsersResolver {
     throw new Error('User with given email already exists');
   }
   @Mutation('activateUserAccount')
-  activateUserAccount(activationToken: string) {
-    return this.usersService.activate(activationToken);
+  activateUserAccount(@Args('activationToken') activationToken: string) {
+    return this.usersService.activate({ activationToken });
   }
 
   @Query('users')

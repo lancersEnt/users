@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
+import { log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -93,18 +93,10 @@ export class UsersService {
     return permissions.includes('admin');
   }
 
-  async activate(activationToken: string) {
+  async activate(uniqueUser: Prisma.UserWhereUniqueInput) {
     try {
-      const user = await this.prisma.user.findFirst({
-        where: {
-          activationToken,
-        },
-      });
-      if (user && user.isActive) throw new Error('account already activated');
-      return this.prisma.user.update({
-        where: {
-          id: user.id,
-        },
+      return await this.prisma.user.update({
+        where: uniqueUser,
         data: {
           isActive: true,
           updatedAt: new Date(),

@@ -4,8 +4,8 @@ import {
 } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { Module } from '@nestjs/common';
-import { GraphQLISODateTime, GraphQLModule } from '@nestjs/graphql';
-// import { AuthModule } from './auth/auth.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
 import { PrismaService } from 'prisma/prisma.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
@@ -18,7 +18,8 @@ import { AuthModule } from './auth/auth.module';
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
       typePaths: ['./**/*.graphql'],
       resolvers: {
-        DateTime: GraphQLISODateTime,
+        DateTime: DateTimeResolver,
+        EmailAddress: EmailAddressResolver,
       },
       context: ({ req, res }): any => ({ req, res }),
     }),

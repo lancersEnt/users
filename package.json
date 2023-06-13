@@ -37,6 +37,7 @@
     "concurrently": "^8.2.0",
     "cookie-parser": "^1.4.6",
     "g": "^2.0.1",
+    "graphql-scalars": "^1.22.2",
     "i": "^0.3.7",
     "npm": "^9.7.1",
     "passport-jwt": "^4.0.1",
