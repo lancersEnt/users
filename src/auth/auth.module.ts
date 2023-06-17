@@ -7,6 +7,7 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { PrismaService } from 'prisma/prisma.service';
+import { SocialLinksService } from 'src/social-links/social-links.service';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PrismaService } from 'prisma/prisma.service';
     AuthResolver,
     JwtStrategy,
     UsersService,
+    SocialLinksService,
     PrismaService,
   ],
   exports: [AuthService],

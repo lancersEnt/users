@@ -23,6 +23,8 @@ type User @key(fields: "id"){
   passwordReset: String
   isActive: Boolean
   activationToken: String
+  followers: [User]
+  following: [User]
   createdAt: DateTime
   updatedAt: DateTime
 }

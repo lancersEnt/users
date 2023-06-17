@@ -1,0 +1,15 @@
+input FollowInput {
+  userId: String!
+  targetUserId: String!
+}
+
+input UnfollowInput {
+  userId: String!
+  targetUserId: String!
+}
+
+type Mutation {
+  follow(followInput: FollowInput!): String!
+  unfollow(unfollowInput: UnfollowInput!): String!
+
+}

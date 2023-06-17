@@ -4,14 +4,20 @@ import {
   Mutation,
   Args,
   ResolveReference,
+  Parent,
+  ResolveField,
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
 import { User } from '../graphql';
+import { SocialLinksService } from 'src/social-links/social-links.service';
 
 @Resolver('User')
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly socialLinksService: SocialLinksService,
+  ) {}
 
   @Mutation('signup')
   async signup(
@@ -58,5 +64,15 @@ export class UsersResolver {
   }): Promise<User> {
     const id = reference.id;
     return this.usersService.findOne({ id });
+  }
+
+  @ResolveField('followers', (returns) => [User])
+  followers(@Parent() user: User): Promise<User[]> {
+    return this.socialLinksService.userFollowers(user.id);
+  }
+
+  @ResolveField('following', (returns) => [User])
+  following(@Parent() user: User): Promise<User[]> {
+    return this.socialLinksService.userFollowing(user.id);
   }
 }

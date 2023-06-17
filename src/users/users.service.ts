@@ -1,20 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { log } from 'console';
+import { SocialLinksService } from 'src/social-links/social-links.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socialLinksService: SocialLinksService,
+  ) {}
 
   async create(createUserInput: Prisma.UserCreateInput) {
     const pass = await this.hashPassword(createUserInput.password);
 
     createUserInput.password = pass;
     try {
-      return this.prisma.user.create({
+      // **create user entity in mongodb */
+      const user: User = await this.prisma.user.create({
         data: createUserInput,
       });
+      //**create user node in neo4j db */
+      await this.socialLinksService.createUserNode(user);
+      /**
+       * TODO: PUBLISH USER.CREATED EVENT FOR OTHER SERVICES
+       */
+      return user;
     } catch (error) {
       throw new Error(error.message);
     }

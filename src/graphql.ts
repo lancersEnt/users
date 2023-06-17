@@ -14,6 +14,16 @@ export class LoginUserInput {
     password: string;
 }
 
+export class FollowInput {
+    userId: string;
+    targetUserId: string;
+}
+
+export class UnfollowInput {
+    userId: string;
+    targetUserId: string;
+}
+
 export class CreateUserInput {
     firstname?: Nullable<string>;
     lastname?: Nullable<string>;
@@ -49,6 +59,20 @@ export class LoginResult {
     token: string;
 }
 
+export abstract class IMutation {
+    abstract follow(followInput: FollowInput): string | Promise<string>;
+
+    abstract unfollow(unfollowInput: UnfollowInput): string | Promise<string>;
+
+    abstract signup(createUserInput: CreateUserInput): User | Promise<User>;
+
+    abstract activateUserAccount(activationToken: string): User | Promise<User>;
+
+    abstract updateUser(id: string, updateUserInput: UpdateUserInput): User | Promise<User>;
+
+    abstract removeUser(id: string): Nullable<User> | Promise<Nullable<User>>;
+}
+
 export class User {
     id: string;
     firstname?: Nullable<string>;
@@ -60,18 +84,10 @@ export class User {
     passwordReset?: Nullable<string>;
     isActive?: Nullable<boolean>;
     activationToken?: Nullable<string>;
+    followers?: Nullable<Nullable<User>[]>;
+    following?: Nullable<Nullable<User>[]>;
     createdAt?: Nullable<DateTime>;
     updatedAt?: Nullable<DateTime>;
-}
-
-export abstract class IMutation {
-    abstract signup(createUserInput: CreateUserInput): User | Promise<User>;
-
-    abstract activateUserAccount(activationToken: string): User | Promise<User>;
-
-    abstract updateUser(id: string, updateUserInput: UpdateUserInput): User | Promise<User>;
-
-    abstract removeUser(id: string): Nullable<User> | Promise<Nullable<User>>;
 }
 
 export type EmailAddress = any;
