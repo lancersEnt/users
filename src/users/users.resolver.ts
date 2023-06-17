@@ -63,6 +63,7 @@ export class UsersResolver {
     id: string;
   }): Promise<User> {
     const id = reference.id;
+
     return this.usersService.findOne({ id });
   }
 
