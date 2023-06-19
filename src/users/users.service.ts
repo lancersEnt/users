@@ -4,9 +4,9 @@ import { Prisma, User } from '@prisma/client';
 import { SocialLinksService } from 'src/social-links/social-links.service';
 import { KafkaProducerService } from 'src/kafka-producer/kafka-producer.service';
 import { PasswordUtils } from '../utils/password.utils';
-import { UserCreated } from './event-payload/userCreated.event';
+import { UserCreated } from './event-payload/user-created.event';
 import { v4 as uuid } from 'uuid';
-import { log } from 'console';
+import { ForgotPassword } from './event-payload/forgot-password.event.';
 
 @Injectable()
 export class UsersService {
@@ -123,7 +123,7 @@ export class UsersService {
   }
 
   /**
-   * Returns if the user has 'admin' set on the permissions array
+   * Returns if the user has 'admin' on the permissions array
    *
    * @param {string[]} permissions permissions property on a User
    * @returns {boolean}
@@ -278,7 +278,7 @@ export class UsersService {
     const tokenExp = new Date();
     tokenExp.setHours(new Date().getHours() + 1);
 
-    const nUser = this.prisma.user.update({
+    const nUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {
         passwordReset: token,
@@ -286,7 +286,19 @@ export class UsersService {
         updatedAt: new Date(),
       },
     });
-    //TODO: Emit forgot_password event
+
+    const forgot_password: ForgotPassword = {
+      payload: {
+        firstname: nUser.firstname,
+        lastname: nUser.lastname,
+        email: nUser.email,
+        activationToken: nUser.activationToken,
+      },
+      template: 'forgot-password',
+    };
+
+    this.kafkaProducer.sendMessage('forgot_password', forgot_password);
+
     return nUser;
   }
 }
