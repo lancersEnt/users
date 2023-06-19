@@ -29,6 +29,7 @@ export class UsersResolver {
     if (exists === null) return this.usersService.create(createUserInput);
     throw new Error('User with given email already exists');
   }
+
   @Mutation('activateUserAccount')
   activateUserAccount(@Args('activationToken') activationToken: string) {
     return this.usersService.activate({ activationToken });

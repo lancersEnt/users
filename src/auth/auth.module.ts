@@ -8,6 +8,8 @@ import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { SocialLinksService } from 'src/social-links/social-links.service';
+import { KafkaProducerService } from 'src/kafka-producer/kafka-producer.service';
+import { PasswordUtils } from 'src/utils/password.utils';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { SocialLinksService } from 'src/social-links/social-links.service';
     UsersService,
     SocialLinksService,
     PrismaService,
+    PasswordUtils,
+    KafkaProducerService,
   ],
   exports: [AuthService],
 })

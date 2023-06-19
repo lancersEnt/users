@@ -81,9 +81,11 @@ export class User {
     password?: Nullable<string>;
     username?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
-    passwordReset?: Nullable<string>;
     isActive?: Nullable<boolean>;
+    passwordReset?: Nullable<string>;
+    passwordResetExp?: Nullable<DateTime>;
     activationToken?: Nullable<string>;
+    activationTokenExp?: Nullable<DateTime>;
     followers?: Nullable<Nullable<User>[]>;
     following?: Nullable<Nullable<User>[]>;
     createdAt?: Nullable<DateTime>;
