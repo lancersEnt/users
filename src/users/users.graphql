@@ -20,14 +20,17 @@ type User @key(fields: "id"){
   password: String
   username: String
   permissions: [String]
-  passwordReset: String
   isActive: Boolean
+  passwordReset: String
+  passwordResetExp: DateTime
   activationToken: String
+  activationTokenExp: DateTime
   followers: [User]
   following: [User]
   createdAt: DateTime
   updatedAt: DateTime
 }
+
 
 input CreateUserInput {
   # Example field (placeholder)
@@ -58,6 +61,7 @@ extend type Query {
 type Mutation {
   signup(createUserInput: CreateUserInput!): User!
   activateUserAccount(activationToken: String!): User!
+  forgotPassword(email: String!): User!
   updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
   removeUser(id: String!): User
 }

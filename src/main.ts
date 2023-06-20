@@ -10,7 +10,6 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-
   return app.listen(9009);
 }
 

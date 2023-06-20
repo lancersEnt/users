@@ -3,9 +3,9 @@ import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import * as bcrypt from 'bcrypt';
 import { LoginResult, LoginUserInput } from 'src/graphql';
 import { User } from '@prisma/client';
+import { PasswordUtils } from 'src/utils/password.utils';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +13,7 @@ export class AuthService {
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
+    private passwordUtils: PasswordUtils,
   ) {}
 
   /**
@@ -37,7 +38,7 @@ export class AuthService {
     // Check the supplied password against the hash stored for this email address
     let isMatch = false;
     try {
-      isMatch = await this.comparePassword(
+      isMatch = await this.passwordUtils.compare(
         loginAttempt.password,
         userToAttempt.password,
       );
@@ -61,11 +62,6 @@ export class AuthService {
       } else throw new Error('user not active, activate your account first');
     }
     return null;
-  }
-
-  private async comparePassword(enteredPassword, dbPassword) {
-    const match = await bcrypt.compare(enteredPassword, dbPassword);
-    return match;
   }
 
   async validateJwtPayload(payload: JwtPayload): Promise<User | undefined> {
