@@ -22,7 +22,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@apollo/server": "^4.7.3",
+    "@apollo/server": "^4.7.4",
     "@apollo/subgraph": "^2.4.7",
     "@nestjs/apollo": "^11.0.6",
     "@nestjs/common": "^9.0.0",
