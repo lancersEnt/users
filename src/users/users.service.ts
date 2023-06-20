@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import { SocialLinksService } from 'src/social-links/social-links.service';
-import { KafkaProducerService } from 'src/kafka-producer/kafka-producer.service';
 import { PasswordUtils } from '../utils/password.utils';
 import { UserCreated } from './event-payload/user-created.event';
 import { v4 as uuid } from 'uuid';
 import { ForgotPassword } from './event-payload/forgot-password.event.';
+import { KafkaService } from 'src/kafka/kafka.service';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +14,7 @@ export class UsersService {
     private prisma: PrismaService,
     private socialLinksService: SocialLinksService,
     private passwordUtils: PasswordUtils,
-    private readonly kafkaProducer: KafkaProducerService,
+    private readonly kafkaService: KafkaService,
   ) {}
 
   async create(createUserInput: Prisma.UserCreateInput) {
@@ -48,7 +48,10 @@ export class UsersService {
         template: 'signup',
       };
 
-      this.kafkaProducer.sendMessage('user_created', user_created);
+      await this.kafkaService.produce(
+        'user_created',
+        JSON.stringify(user_created),
+      );
 
       return user;
     } catch (error) {
@@ -245,7 +248,10 @@ export class UsersService {
         template: 'signup',
       };
 
-      this.kafkaProducer.sendMessage('user_created', user_created);
+      await this.kafkaService.produce(
+        'user_created',
+        JSON.stringify(user_created),
+      );
 
       throw new Error(
         'Activation token expired, a new one is generated and id being sent to your email, check your inbox',
@@ -292,12 +298,15 @@ export class UsersService {
         firstname: nUser.firstname,
         lastname: nUser.lastname,
         email: nUser.email,
-        activationToken: nUser.activationToken,
+        passwordReset: nUser.passwordReset,
       },
       template: 'forgot-password',
     };
 
-    this.kafkaProducer.sendMessage('forgot_password', forgot_password);
+    await this.kafkaService.produce(
+      'forgot_password',
+      JSON.stringify(forgot_password),
+    );
 
     return nUser;
   }

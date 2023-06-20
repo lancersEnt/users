@@ -3,7 +3,7 @@ export interface ForgotPassword {
     firstname: string;
     lastname?: string;
     email: string;
-    activationToken: string;
+    passwordReset: string;
   };
   template: string;
 }

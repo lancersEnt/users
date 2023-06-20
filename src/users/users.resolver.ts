@@ -35,6 +35,11 @@ export class UsersResolver {
     return this.usersService.activate({ activationToken });
   }
 
+  @Mutation('forgotPassword')
+  forgotPassword(@Args('email') email: string) {
+    return this.usersService.forgotPassword(email);
+  }
+
   @Query('users')
   findAll() {
     return this.usersService.findAll();

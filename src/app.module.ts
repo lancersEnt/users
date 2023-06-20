@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SocialLinksModule } from './social-links/social-links.module';
 import { KafkaProducerService } from './kafka-producer/kafka-producer.service';
+import { KafkaService } from './kafka/kafka.service';
 
 @Module({
   imports: [
@@ -41,6 +42,6 @@ import { KafkaProducerService } from './kafka-producer/kafka-producer.service';
     AuthModule,
     SocialLinksModule,
   ],
-  providers: [PrismaService, KafkaProducerService],
+  providers: [PrismaService, KafkaProducerService, KafkaService],
 })
 export class AppModule {}

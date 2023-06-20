@@ -4,8 +4,8 @@ import { UsersResolver } from './users.resolver';
 import { PrismaService } from 'prisma/prisma.service';
 import { SocialLinksModule } from 'src/social-links/social-links.module';
 import { SocialLinksService } from 'src/social-links/social-links.service';
-import { KafkaProducerService } from 'src/kafka-producer/kafka-producer.service';
 import { PasswordUtils } from 'src/utils/password.utils';
+import { KafkaService } from 'src/kafka/kafka.service';
 
 @Module({
   imports: [SocialLinksModule],
@@ -15,7 +15,7 @@ import { PasswordUtils } from 'src/utils/password.utils';
     PrismaService,
     SocialLinksService,
     PasswordUtils,
-    KafkaProducerService,
+    KafkaService,
   ],
 })
 export class UsersModule {}
