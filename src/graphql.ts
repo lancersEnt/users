@@ -45,8 +45,6 @@ export class UpdateUserInput {
 }
 
 export abstract class IQuery {
-    abstract login(user: LoginUserInput): LoginResult | Promise<LoginResult>;
-
     abstract refreshToken(): string | Promise<string>;
 
     abstract users(): Nullable<User>[] | Promise<Nullable<User>[]>;
@@ -54,12 +52,9 @@ export abstract class IQuery {
     abstract user(id: string): Nullable<User> | Promise<Nullable<User>>;
 }
 
-export class LoginResult {
-    user: User;
-    token: string;
-}
-
 export abstract class IMutation {
+    abstract login(user: LoginUserInput): LoginResult | Promise<LoginResult>;
+
     abstract follow(followInput: FollowInput): string | Promise<string>;
 
     abstract unfollow(unfollowInput: UnfollowInput): string | Promise<string>;
@@ -73,6 +68,11 @@ export abstract class IMutation {
     abstract updateUser(id: string, updateUserInput: UpdateUserInput): User | Promise<User>;
 
     abstract removeUser(id: string): Nullable<User> | Promise<Nullable<User>>;
+}
+
+export class LoginResult {
+    user: User;
+    token: string;
 }
 
 export class User {

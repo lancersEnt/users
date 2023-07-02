@@ -11,6 +11,8 @@ import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
 import { User } from '../graphql';
 import { SocialLinksService } from 'src/social-links/social-links.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Resolver('User')
 export class UsersResolver {
@@ -41,6 +43,7 @@ export class UsersResolver {
   }
 
   @Query('users')
+  @UseGuards(JwtAuthGuard)
   findAll() {
     return this.usersService.findAll();
   }

@@ -7,6 +7,7 @@ import { UserCreated } from './event-payload/user-created.event';
 import { v4 as uuid } from 'uuid';
 import { ForgotPassword } from './event-payload/forgot-password.event.';
 import { KafkaService } from 'src/kafka/kafka.service';
+import { log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -18,12 +19,8 @@ export class UsersService {
   ) {}
 
   async create(createUserInput: Prisma.UserCreateInput) {
-    const pass = await this.passwordUtils.hash(createUserInput.password);
     const tomorrow = new Date();
-    // Tomorrow's date
     tomorrow.setDate(tomorrow.getDate() + 1);
-
-    createUserInput.password = pass;
     try {
       // **create user entity in mongodb */
       const user: User = await this.prisma.user.create({

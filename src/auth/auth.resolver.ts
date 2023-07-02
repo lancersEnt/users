@@ -1,4 +1,4 @@
-import { Resolver, Args, Query, Context } from '@nestjs/graphql';
+import { Resolver, Args, Query, Context, Mutation } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
@@ -10,7 +10,7 @@ import { User } from '@prisma/client';
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  @Query('login')
+  @Mutation('login')
   async login(
     @Context() context: any,
     @Args('user') user: LoginUserInput,

@@ -35,7 +35,7 @@ import { KafkaService } from './kafka/kafka.service';
       database: 'myklad',
       username: 'neo4j',
       password: 'test',
-      global: true, // to register in the global scope
+      global: true,
     }),
     UsersModule,
     AuthModule,

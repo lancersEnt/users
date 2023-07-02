@@ -6,6 +6,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginResult, LoginUserInput } from 'src/graphql';
 import { User } from '@prisma/client';
 import { PasswordUtils } from 'src/utils/password.utils';
+import { log } from 'console';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,6 @@ export class AuthService {
         loginAttempt.email,
       );
     }
-
     // Check the supplied password against the hash stored for this email address
     let isMatch = false;
     try {

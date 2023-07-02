@@ -9,10 +9,11 @@ directive @external on OBJECT | FIELD_DEFINITION
 scalar EmailAddress
 
 extend type Query {
-  login(user: LoginUserInput!): LoginResult!
   refreshToken: String!
 }
-
+type Mutation {
+  login(user: LoginUserInput!): LoginResult!
+}
 type LoginResult {
   user: User!
   token: String!

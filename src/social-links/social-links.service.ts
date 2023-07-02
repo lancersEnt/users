@@ -9,12 +9,15 @@ import { User as PUser } from '@prisma/client';
 import { FollowInput, UnfollowInput, User } from 'src/graphql';
 import { Neo4jService } from '@nhogs/nestjs-neo4j';
 import { log } from 'console';
+import { KafkaService } from 'src/kafka/kafka.service';
+import { FollowNotification } from './interfaces/follow-notification.interface';
 
 @Injectable()
 export class SocialLinksService {
   constructor(
     private prisma: PrismaService,
     private readonly neo4j: Neo4jService,
+    private readonly kafkaService: KafkaService,
   ) {}
   // todo: make this function excute on user.created event
   async createUserNode(user: PUser) {
@@ -108,8 +111,22 @@ export class SocialLinksService {
     ) {
       throw new BadRequestException('Already following');
     }
+
     const result =
       queryResult.summary.counters.updates().relationshipsCreated > 0;
+    const followNotification: FollowNotification = {
+      payload: {
+        title: 'New follower',
+        body: `${followInput.userId} has followed you`,
+        createdBy: followInput.userId,
+        targetUserId: followInput.targetUserId,
+      },
+    };
+
+    this.kafkaService.produce(
+      'notifications',
+      JSON.stringify(followNotification),
+    );
 
     return result
       ? 'Relationship created'

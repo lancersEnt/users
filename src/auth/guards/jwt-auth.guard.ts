@@ -1,6 +1,7 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { AuthenticationError } from '@nestjs/apollo';
 
 @Injectable()
 // In order to use AuthGuard together with GraphQL, you have to extend
@@ -13,6 +14,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err: any, user: any) {
+    if (err || !user) {
+      throw err || new AuthenticationError('Could not authenticate with token');
+    }
     return user;
   }
 }
