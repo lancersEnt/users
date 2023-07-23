@@ -6,6 +6,7 @@ import {
   ResolveReference,
   Parent,
   ResolveField,
+  Context,
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
@@ -13,6 +14,7 @@ import { User } from '../graphql';
 import { SocialLinksService } from 'src/social-links/social-links.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { log } from 'console';
 
 @Resolver('User')
 export class UsersResolver {
@@ -42,6 +44,19 @@ export class UsersResolver {
     return this.usersService.forgotPassword(email);
   }
 
+  @Mutation('resetPassword')
+  resetPassword(
+    @Args('token') token: string,
+    @Args('password') password: string,
+  ) {
+    return this.usersService.resetPassword(token, password);
+  }
+
+  @Query('findByUsername')
+  findByUsername(@Args('username') username: string) {
+    return this.usersService.findOneByUsername(username);
+  }
+
   @Query('users')
   @UseGuards(JwtAuthGuard)
   findAll() {
@@ -51,6 +66,14 @@ export class UsersResolver {
   @Query('user')
   findOne(@Args('id') id: string) {
     return this.usersService.findOne({ id });
+  }
+
+  @Query('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Context() context: any) {
+    const { req: request, res } = context;
+    const id: string = request.user.id;
+    return await this.usersService.findOne({ id });
   }
 
   @Mutation('updateUser')

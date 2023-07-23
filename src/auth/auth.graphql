@@ -13,6 +13,7 @@ extend type Query {
 }
 type Mutation {
   login(user: LoginUserInput!): LoginResult!
+  logout:Boolean
 }
 type LoginResult {
   user: User!

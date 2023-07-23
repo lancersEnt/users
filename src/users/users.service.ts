@@ -7,7 +7,7 @@ import { UserCreated } from './event-payload/user-created.event';
 import { v4 as uuid } from 'uuid';
 import { ForgotPassword } from './event-payload/forgot-password.event.';
 import { KafkaService } from 'src/kafka/kafka.service';
-import { log } from 'console';
+import { error, log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -74,25 +74,28 @@ export class UsersService {
     }
   }
 
-  findOneByEmail(email: string) {
+  async findOneByEmail(email: string) {
     try {
-      return this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           email: email,
         },
       });
+      return user;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  findOneByUsername(username: string) {
+  async findOneByUsername(username: string) {
     try {
-      return this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           username: username,
         },
       });
+      if (!user) throw new Error('user not found');
+      else return user;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -123,7 +126,7 @@ export class UsersService {
   }
 
   /**
-   * Returns if the user has 'admin' on the permissions array
+   * Test if the user has 'admin' on the permissions array
    *
    * @param {string[]} permissions permissions property on a User
    * @returns {boolean}
@@ -157,16 +160,20 @@ export class UsersService {
     if (!user) throw new Error('user not found');
     if (user.permissions.includes(permission))
       throw new Error('already has permission');
-    user.permissions.push(permission);
-    this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        permissions: user.permissions,
-        updatedAt: new Date().toISOString(),
-      },
-    });
+    try {
+      user.permissions.push(permission);
+      this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          permissions: user.permissions,
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
     return user;
   }
 
@@ -266,7 +273,6 @@ export class UsersService {
 
   /**
    * Send an email with a password reset code and sets the reset token and expiration on the user.
-   * EMAIL_ENABLED must be true for this to run.
    *
    * @param {string} email address associated with an account to reset
    * @returns {Promise<User | undefined> } returns user
@@ -306,5 +312,41 @@ export class UsersService {
     );
 
     return nUser;
+  }
+
+  /**
+   * changes user password if the user provides the reset token sent to his email
+   * checks if token exists
+   * checks if token is expired
+   *
+   * @param {string} token reset token
+   * @param {string} password new password
+   * @returns {Promise<User | undefined> } returns user
+   * @memberof UsersService
+   */
+  async resetPassword(
+    token: string,
+    password: string,
+  ): Promise<User | undefined> {
+    const now = new Date();
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordReset: token,
+      },
+    });
+
+    if (!user) throw new Error('invalid token');
+    if (user.passwordResetExp < now) throw new Error('token expired');
+
+    return this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        passwordReset: null,
+        passwordResetExp: null,
+        password: await this.passwordUtils.hash(password),
+      },
+    });
   }
 }

@@ -20,9 +20,11 @@ export class AuthResolver {
       const result = await this.authService.validateUserByPassword(user);
 
       if (result) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
         res.cookie('token', result.token, {
           httpOnly: true,
-          maxAge: 1.8e6,
+          expires: tomorrow,
         });
         return result;
       }
@@ -43,16 +45,25 @@ export class AuthResolver {
       throw new AuthenticationError(
         'Could not log-in with the provided credentials',
       );
-    const result = await this.authService.createJwt(user);
+    const result = this.authService.createJwt(user);
     if (result) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
       res.cookie('token', result.token, {
         httpOnly: true,
-        maxAge: 1.8e6,
+        expires: tomorrow,
       });
       return result.token;
     }
     throw new AuthenticationError(
       'Could not log-in with the provided credentials',
     );
+  }
+
+  @Mutation()
+  async logout(@Context() ctx) {
+    // Clear the authentication cookie
+    ctx.res.clearCookie('token');
+    return true; // Return a response indicating successful logout
   }
 }

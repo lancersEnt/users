@@ -19,9 +19,7 @@ export class SocialLinksService {
     private readonly neo4j: Neo4jService,
     private readonly kafkaService: KafkaService,
   ) {}
-  // todo: make this function excute on user.created event
   async createUserNode(user: PUser) {
-    // handle and process "OrderCreatedEvent"
     const queryResult = await this.neo4j.run(
       {
         cypher: 'create (user:User {id: $id, email:$email}) return user',
@@ -82,14 +80,13 @@ export class SocialLinksService {
   }
 
   async follow(followInput: FollowInput) {
-    log(followInput);
     const queryResult = await this.neo4j.run(
       {
         cypher: `
                 MATCH
                   (a:User),
                   (b:User)
-                WHERE a.id =$user_id AND b.id = $target_id
+                WHERE a.id =$user_id AND b.id = $target_id AND NOT (a)-[:FOLLOW]->(b)
                 CREATE (a)-[r:FOLLOW {createdAt: dateTime()}]->(b)
                 RETURN type(r)
                 `,
@@ -100,16 +97,13 @@ export class SocialLinksService {
       },
       { write: true },
     );
+    if (queryResult.summary.counters.updates().relationshipsCreated == 0) {
+      throw new BadRequestException('Already following');
+    }
     if (queryResult.records.length === 0) {
       throw new InternalServerErrorException(
         'Could not create follow relation',
       );
-    }
-    if (
-      queryResult.records.length === 1 &&
-      queryResult.summary.counters.updates().relationshipsCreated == 0
-    ) {
-      throw new BadRequestException('Already following');
     }
 
     const result =
@@ -122,6 +116,8 @@ export class SocialLinksService {
         targetUserId: followInput.targetUserId,
       },
     };
+
+    console.log(followNotification);
 
     this.kafkaService.produce(
       'notifications',

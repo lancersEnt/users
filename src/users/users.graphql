@@ -19,6 +19,8 @@ type User @key(fields: "id"){
   email: EmailAddress
   password: String
   username: String
+  dateOfBirth: DateTime
+  sex: String
   permissions: [String]
   isActive: Boolean
   passwordReset: String
@@ -39,6 +41,8 @@ input CreateUserInput {
   email: EmailAddress
   password: String
   username: String
+  dateOfBirth: DateTime
+  sex: String
   permissions: [String]
   createdAt: DateTime
 }
@@ -47,6 +51,8 @@ input UpdateUserInput {
   firstname: String
   lastname: String
   email: EmailAddress
+  dateOfBirth: DateTime
+  sex: String
   password: String
   username: String
   permissions: [String]
@@ -56,12 +62,15 @@ input UpdateUserInput {
 extend type Query {
   users: [User]!
   user(id: String!): User
+  findByUsername(username:String!):User
+  me: User
 }
 
 type Mutation {
   signup(createUserInput: CreateUserInput!): User!
   activateUserAccount(activationToken: String!): User!
   forgotPassword(email: String!): User!
+  resetPassword(token: String!, password: String!): User!
   updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
   removeUser(id: String!): User
 }

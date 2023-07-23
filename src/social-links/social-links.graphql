@@ -1,10 +1,10 @@
 input FollowInput {
-  userId: String!
+  userId: String
   targetUserId: String!
 }
 
 input UnfollowInput {
-  userId: String!
+  userId: String
   targetUserId: String!
 }
 

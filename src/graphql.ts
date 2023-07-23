@@ -15,12 +15,12 @@ export class LoginUserInput {
 }
 
 export class FollowInput {
-    userId: string;
+    userId?: Nullable<string>;
     targetUserId: string;
 }
 
 export class UnfollowInput {
-    userId: string;
+    userId?: Nullable<string>;
     targetUserId: string;
 }
 
@@ -30,6 +30,8 @@ export class CreateUserInput {
     email?: Nullable<EmailAddress>;
     password?: Nullable<string>;
     username?: Nullable<string>;
+    dateOfBirth?: Nullable<DateTime>;
+    sex?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
     createdAt?: Nullable<DateTime>;
 }
@@ -38,6 +40,8 @@ export class UpdateUserInput {
     firstname?: Nullable<string>;
     lastname?: Nullable<string>;
     email?: Nullable<EmailAddress>;
+    dateOfBirth?: Nullable<DateTime>;
+    sex?: Nullable<string>;
     password?: Nullable<string>;
     username?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
@@ -50,10 +54,16 @@ export abstract class IQuery {
     abstract users(): Nullable<User>[] | Promise<Nullable<User>[]>;
 
     abstract user(id: string): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract findByUsername(username: string): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract me(): Nullable<User> | Promise<Nullable<User>>;
 }
 
 export abstract class IMutation {
     abstract login(user: LoginUserInput): LoginResult | Promise<LoginResult>;
+
+    abstract logout(): Nullable<boolean> | Promise<Nullable<boolean>>;
 
     abstract follow(followInput: FollowInput): string | Promise<string>;
 
@@ -64,6 +74,8 @@ export abstract class IMutation {
     abstract activateUserAccount(activationToken: string): User | Promise<User>;
 
     abstract forgotPassword(email: string): User | Promise<User>;
+
+    abstract resetPassword(token: string, password: string): User | Promise<User>;
 
     abstract updateUser(id: string, updateUserInput: UpdateUserInput): User | Promise<User>;
 
@@ -82,6 +94,8 @@ export class User {
     email?: Nullable<EmailAddress>;
     password?: Nullable<string>;
     username?: Nullable<string>;
+    dateOfBirth?: Nullable<DateTime>;
+    sex?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
     isActive?: Nullable<boolean>;
     passwordReset?: Nullable<string>;

@@ -27,7 +27,6 @@ export class KafkaService {
   }
 
   async consume(topics: string[]): Promise<void> {
-    log('tstts');
     const consumer = this.kafka.consumer({ groupId: 'MyKlad' });
 
     await consumer.connect();
@@ -35,7 +34,6 @@ export class KafkaService {
 
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
-        log('sss');
         console.log({
           topic,
           value: message.value.toString(),
