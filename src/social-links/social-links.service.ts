@@ -8,7 +8,6 @@ import { PrismaService } from 'prisma/prisma.service';
 import { User as PUser } from '@prisma/client';
 import { FollowInput, UnfollowInput, User } from 'src/graphql';
 import { Neo4jService } from '@nhogs/nestjs-neo4j';
-import { log } from 'console';
 import { KafkaService } from 'src/kafka/kafka.service';
 import { FollowNotification } from './interfaces/follow-notification.interface';
 
