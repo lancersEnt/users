@@ -13,11 +13,18 @@ extend type Query {
 }
 type Mutation {
   login(user: LoginUserInput!): LoginResult!
+  switchAccount(targetId: String): SwitchResult!
+  switchBack:Boolean
   logout:Boolean
 }
 type LoginResult {
   user: User!
   token: String!
+}
+type SwitchResult {
+  user: User!
+  token: String!
+  old_token: String!
 }
 
 input LoginUserInput {
@@ -25,3 +32,4 @@ input LoginUserInput {
   email: EmailAddress
   password: String!
 }
+

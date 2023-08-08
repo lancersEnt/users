@@ -10,6 +10,8 @@ scalar DateTime
 
 scalar EmailAddress
 
+scalar PhoneNumber
+
 
 type User @key(fields: "id"){
   # Example field (placeholder)
@@ -21,6 +23,11 @@ type User @key(fields: "id"){
   username: String
   dateOfBirth: DateTime
   sex: String
+  profilePictureUrl: String
+  city: String
+  nationality: String
+  address: String
+  phone: String
   permissions: [String]
   isActive: Boolean
   passwordReset: String
@@ -29,6 +36,8 @@ type User @key(fields: "id"){
   activationTokenExp: DateTime
   followers: [User]
   following: [User]
+  pages: [User]
+  managers: [User]
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -47,12 +56,20 @@ input CreateUserInput {
   createdAt: DateTime
 }
 
+
+
+
 input UpdateUserInput {
   firstname: String
   lastname: String
   email: EmailAddress
   dateOfBirth: DateTime
   sex: String
+  profilePictureUrl: String
+  city: String
+  nationality: String
+  address: String
+  phone: PhoneNumber
   password: String
   username: String
   permissions: [String]
@@ -63,11 +80,13 @@ extend type Query {
   users: [User]!
   user(id: String!): User
   findByUsername(username:String!):User
+  findPageByUsername(username:String!):User
   me: User
 }
 
 type Mutation {
   signup(createUserInput: CreateUserInput!): User!
+  createPage(createUserInput: CreateUserInput!): User 
   activateUserAccount(activationToken: String!): User!
   forgotPassword(email: String!): User!
   resetPassword(token: String!, password: String!): User!

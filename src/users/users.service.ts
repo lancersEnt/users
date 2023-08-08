@@ -26,6 +26,7 @@ export class UsersService {
       const user: User = await this.prisma.user.create({
         data: {
           ...createUserInput,
+          permissions: ['user'],
           password: await this.passwordUtils.hash(createUserInput.password),
           activationTokenExp: tomorrow,
         },
@@ -34,7 +35,32 @@ export class UsersService {
       //**create user node in neo4j db */
       await this.socialLinksService.createUserNode(user);
 
-      //**Send user_created event to kafka */
+      return user;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async createPgae(createUserInput: Prisma.UserCreateInput, ownerId: string) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    log(createUserInput);
+    try {
+      // **create user entity in mongodb */
+      const user: User = await this.prisma.user.create({
+        data: {
+          ...createUserInput,
+          permissions: ['page'],
+          isActive: true,
+          password: await this.passwordUtils.hash(createUserInput.password),
+          activationTokenExp: tomorrow,
+        },
+      });
+
+      //**create page node in neo4j db */
+      await this.socialLinksService.createPageNode(user, ownerId);
+
+      //**Send page_created event to kafka */
       const user_created: UserCreated = {
         payload: {
           firstname: user.firstname,
@@ -49,7 +75,6 @@ export class UsersService {
         'user_created',
         JSON.stringify(user_created),
       );
-
       return user;
     } catch (error) {
       throw new Error(error.message);
@@ -76,9 +101,12 @@ export class UsersService {
 
   async findOneByEmail(email: string) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findFirst({
         where: {
-          email: email,
+          email: {
+            equals: email,
+            mode: 'insensitive',
+          },
         },
       });
       return user;
@@ -89,13 +117,25 @@ export class UsersService {
 
   async findOneByUsername(username: string) {
     try {
-      const user = await this.prisma.user.findUnique({
+      return await this.prisma.user.findFirstOrThrow({
         where: {
           username: username,
+          permissions: { has: 'user' },
         },
       });
-      if (!user) throw new Error('user not found');
-      else return user;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async findPageByUsername(username: string) {
+    try {
+      return await this.prisma.user.findFirstOrThrow({
+        where: {
+          username: username,
+          permissions: { has: 'page' },
+        },
+      });
     } catch (error) {
       throw new Error(error.message);
     }

@@ -20,7 +20,7 @@ import { KafkaService } from 'src/kafka/kafka.service';
           secret: 'secret',
         };
         options.signOptions = {
-          expiresIn: 3600,
+          expiresIn: 1e22,
         };
         return options;
       },

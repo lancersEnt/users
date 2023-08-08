@@ -8,6 +8,16 @@ input UnfollowInput {
   targetUserId: String!
 }
 
+input DiscoverInput {
+  userId: String
+  limit: Int
+}
+
+type Query {
+  getFollowingIds(userId: String): [String]!
+  discoverUsers(discoverInput: DiscoverInput): [User]
+}
+
 type Mutation {
   follow(followInput: FollowInput!): String!
   unfollow(unfollowInput: UnfollowInput!): String!

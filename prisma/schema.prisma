@@ -12,18 +12,24 @@ datasource db {
 
 model User {
   id                  String        @id @default(uuid()) @map("_id") 
-  firstname           String
-  lastname            String
+  firstname           String        @default("")
+  lastname            String        @default("")
   email               String        @unique
   password            String
   username            String        @unique
   dateOfBirth         DateTime?
-  sex                 String
+  sex                 String?
+  profilePictureUrl   String        @default("")
+  city                String        @default("")
+  address             String        @default("")
+  phone               String        @default("")
+  nationality         String?       @default("")
   permissions         String[]
   passwordReset       String?
   passwordResetExp    DateTime?
   activationToken     String        @unique @default(uuid()) 
   activationTokenExp  DateTime
+  pageType            String?
   isActive            Boolean       @default(false)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @default(now())

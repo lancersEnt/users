@@ -4,5 +4,6 @@ export interface FollowNotification {
     body: string;
     targetUserId: string;
     createdBy: string;
+    action: string;
   };
 }

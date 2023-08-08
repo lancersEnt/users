@@ -5,7 +5,11 @@ import {
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
+import {
+  DateTimeResolver,
+  EmailAddressResolver,
+  PhoneNumberResolver,
+} from 'graphql-scalars';
 import { Neo4jModule } from '@nhogs/nestjs-neo4j';
 import { PrismaService } from 'prisma/prisma.service';
 import { UsersModule } from './users/users.module';
@@ -24,6 +28,7 @@ import { KafkaService } from './kafka/kafka.service';
       resolvers: {
         DateTime: DateTimeResolver,
         EmailAddress: EmailAddressResolver,
+        PhoneNumber: PhoneNumberResolver,
       },
       context: ({ req, res }): any => ({ req, res }),
     }),

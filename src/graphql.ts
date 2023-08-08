@@ -24,6 +24,11 @@ export class UnfollowInput {
     targetUserId: string;
 }
 
+export class DiscoverInput {
+    userId?: Nullable<string>;
+    limit?: Nullable<number>;
+}
+
 export class CreateUserInput {
     firstname?: Nullable<string>;
     lastname?: Nullable<string>;
@@ -42,6 +47,11 @@ export class UpdateUserInput {
     email?: Nullable<EmailAddress>;
     dateOfBirth?: Nullable<DateTime>;
     sex?: Nullable<string>;
+    profilePictureUrl?: Nullable<string>;
+    city?: Nullable<string>;
+    nationality?: Nullable<string>;
+    address?: Nullable<string>;
+    phone?: Nullable<PhoneNumber>;
     password?: Nullable<string>;
     username?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
@@ -51,17 +61,27 @@ export class UpdateUserInput {
 export abstract class IQuery {
     abstract refreshToken(): string | Promise<string>;
 
+    abstract getFollowingIds(userId?: Nullable<string>): Nullable<string>[] | Promise<Nullable<string>[]>;
+
+    abstract discoverUsers(discoverInput?: Nullable<DiscoverInput>): Nullable<Nullable<User>[]> | Promise<Nullable<Nullable<User>[]>>;
+
     abstract users(): Nullable<User>[] | Promise<Nullable<User>[]>;
 
     abstract user(id: string): Nullable<User> | Promise<Nullable<User>>;
 
     abstract findByUsername(username: string): Nullable<User> | Promise<Nullable<User>>;
 
+    abstract findPageByUsername(username: string): Nullable<User> | Promise<Nullable<User>>;
+
     abstract me(): Nullable<User> | Promise<Nullable<User>>;
 }
 
 export abstract class IMutation {
     abstract login(user: LoginUserInput): LoginResult | Promise<LoginResult>;
+
+    abstract switchAccount(targetId?: Nullable<string>): SwitchResult | Promise<SwitchResult>;
+
+    abstract switchBack(): Nullable<boolean> | Promise<Nullable<boolean>>;
 
     abstract logout(): Nullable<boolean> | Promise<Nullable<boolean>>;
 
@@ -70,6 +90,8 @@ export abstract class IMutation {
     abstract unfollow(unfollowInput: UnfollowInput): string | Promise<string>;
 
     abstract signup(createUserInput: CreateUserInput): User | Promise<User>;
+
+    abstract createPage(createUserInput: CreateUserInput): Nullable<User> | Promise<Nullable<User>>;
 
     abstract activateUserAccount(activationToken: string): User | Promise<User>;
 
@@ -87,6 +109,12 @@ export class LoginResult {
     token: string;
 }
 
+export class SwitchResult {
+    user: User;
+    token: string;
+    old_token: string;
+}
+
 export class User {
     id: string;
     firstname?: Nullable<string>;
@@ -96,6 +124,11 @@ export class User {
     username?: Nullable<string>;
     dateOfBirth?: Nullable<DateTime>;
     sex?: Nullable<string>;
+    profilePictureUrl?: Nullable<string>;
+    city?: Nullable<string>;
+    nationality?: Nullable<string>;
+    address?: Nullable<string>;
+    phone?: Nullable<string>;
     permissions?: Nullable<Nullable<string>[]>;
     isActive?: Nullable<boolean>;
     passwordReset?: Nullable<string>;
@@ -104,10 +137,13 @@ export class User {
     activationTokenExp?: Nullable<DateTime>;
     followers?: Nullable<Nullable<User>[]>;
     following?: Nullable<Nullable<User>[]>;
+    pages?: Nullable<Nullable<User>[]>;
+    managers?: Nullable<Nullable<User>[]>;
     createdAt?: Nullable<DateTime>;
     updatedAt?: Nullable<DateTime>;
 }
 
 export type EmailAddress = any;
 export type DateTime = any;
+export type PhoneNumber = any;
 type Nullable<T> = T | null;

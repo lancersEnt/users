@@ -35,6 +35,11 @@ export class AuthService {
         loginAttempt.email,
       );
     }
+    if (loginAttempt.username) {
+      userToAttempt = await this.usersService.findOneByUsername(
+        loginAttempt.username,
+      );
+    }
     // Check the supplied password against the hash stored for this email address
     let isMatch = false;
     try {
@@ -65,7 +70,7 @@ export class AuthService {
   }
 
   async validateJwtPayload(payload: JwtPayload): Promise<User | undefined> {
-    const user = await this.usersService.findOneByUsername(payload.username);
+    const user = await this.usersService.findOneByEmail(payload.email);
     if (user) {
       await this.usersService.update(
         { id: user.id },
@@ -77,8 +82,27 @@ export class AuthService {
     return undefined;
   }
 
+  async switchAccount(id: string, targetId: string) {
+    const old = await this.usersService.findOne({ id });
+    const target = await this.usersService.findOne({ id: targetId });
+
+    if (!old.permissions.includes('user')) {
+      throw new Error("can't switch profiles when logges as page");
+    }
+
+    const result: any = {
+      user: target,
+      token: this.createJwt(target).token,
+      old_token: this.createJwt(old).token,
+    };
+
+    log(result);
+
+    return result;
+  }
+
   createJwt(user: User): { data: JwtPayload; token: string } {
-    const expiresIn = 3600;
+    const expiresIn = 720000;
     let expiration: Date | undefined;
     if (expiresIn) {
       expiration = new Date();
@@ -87,6 +111,7 @@ export class AuthService {
     const data: JwtPayload = {
       userId: user.id,
       username: user.username,
+      email: user.email,
       permissions: user.permissions,
       expiration,
     };

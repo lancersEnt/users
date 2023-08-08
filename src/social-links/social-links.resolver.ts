@@ -1,6 +1,6 @@
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { SocialLinksService } from './social-links.service';
-import { FollowInput, UnfollowInput } from 'src/graphql';
+import { DiscoverInput, FollowInput, UnfollowInput } from 'src/graphql';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
@@ -30,5 +30,16 @@ export class SocialLinksResolver {
     const id: string = request.user.id;
     UnfollowInput.userId = id;
     return this.socialLinksService.unfollow(UnfollowInput);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Query('getFollowingIds')
+  getFollowingIds(@Args('userId') userId) {
+    return this.socialLinksService.userFollowingIds(userId);
+  }
+
+  @Query('discoverUsers')
+  discoverUsers(@Args('discoverInput') discoverInput: DiscoverInput) {
+    return this.socialLinksService.discoverUser(discoverInput);
   }
 }

@@ -34,6 +34,24 @@ export class UsersResolver {
     throw new Error('User with given email already exists');
   }
 
+  @Mutation('createPage')
+  @UseGuards(JwtAuthGuard)
+  async createPage(
+    @Args('createUserInput') createUserInput: Prisma.UserCreateInput,
+    @Context() context: any,
+  ) {
+    log(createUserInput);
+    const { req, res } = context;
+    const id: string = req.user.id;
+    log(id);
+    const exists = await this.usersService.findOneByEmail(
+      createUserInput.email,
+    );
+    if (exists === null)
+      return this.usersService.createPgae(createUserInput, id);
+    throw new Error('User/Page with given email already exists');
+  }
+
   @Mutation('activateUserAccount')
   activateUserAccount(@Args('activationToken') activationToken: string) {
     return this.usersService.activate({ activationToken });
@@ -55,6 +73,11 @@ export class UsersResolver {
   @Query('findByUsername')
   findByUsername(@Args('username') username: string) {
     return this.usersService.findOneByUsername(username);
+  }
+
+  @Query('findPageByUsername')
+  findPageByUsername(@Args('username') username: string) {
+    return this.usersService.findPageByUsername(username);
   }
 
   @Query('users')
@@ -107,5 +130,15 @@ export class UsersResolver {
   @ResolveField('following', (returns) => [User])
   following(@Parent() user: User): Promise<User[]> {
     return this.socialLinksService.userFollowing(user.id);
+  }
+
+  @ResolveField('pages', (returns) => [User])
+  pages(@Parent() user: User): Promise<User[]> {
+    return this.socialLinksService.userPages(user.id);
+  }
+
+  @ResolveField('managers', (returns) => [User])
+  managers(@Parent() user: User): Promise<User[]> {
+    return this.socialLinksService.pageManagers(user.id);
   }
 }
