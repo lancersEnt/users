@@ -15,6 +15,7 @@ import { SocialLinksService } from 'src/social-links/social-links.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { log } from 'console';
+import { UserGuard } from 'src/auth/guards/user.guard';
 
 @Resolver('User')
 export class UsersResolver {
@@ -35,7 +36,7 @@ export class UsersResolver {
   }
 
   @Mutation('createPage')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserGuard)
   async createPage(
     @Args('createUserInput') createUserInput: Prisma.UserCreateInput,
     @Context() context: any,

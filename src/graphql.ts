@@ -139,6 +139,8 @@ export class User {
     following?: Nullable<Nullable<User>[]>;
     pages?: Nullable<Nullable<User>[]>;
     managers?: Nullable<Nullable<User>[]>;
+    ownerId?: Nullable<string>;
+    owner?: Nullable<User>;
     createdAt?: Nullable<DateTime>;
     updatedAt?: Nullable<DateTime>;
 }

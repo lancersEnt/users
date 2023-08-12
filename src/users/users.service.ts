@@ -35,6 +35,22 @@ export class UsersService {
       //**create user node in neo4j db */
       await this.socialLinksService.createUserNode(user);
 
+      //**Send page_created event to kafka */
+      const user_created: UserCreated = {
+        payload: {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          email: user.email,
+          activationToken: user.activationToken,
+        },
+        template: 'signup',
+      };
+
+      await this.kafkaService.produce(
+        'user_created',
+        JSON.stringify(user_created),
+      );
+
       return user;
     } catch (error) {
       throw new Error(error.message);
@@ -60,21 +76,6 @@ export class UsersService {
       //**create page node in neo4j db */
       await this.socialLinksService.createPageNode(user, ownerId);
 
-      //**Send page_created event to kafka */
-      const user_created: UserCreated = {
-        payload: {
-          firstname: user.firstname,
-          lastname: user.lastname,
-          email: user.email,
-          activationToken: user.activationToken,
-        },
-        template: 'signup',
-      };
-
-      await this.kafkaService.produce(
-        'user_created',
-        JSON.stringify(user_created),
-      );
       return user;
     } catch (error) {
       throw new Error(error.message);

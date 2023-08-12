@@ -232,7 +232,9 @@ export class SocialLinksService {
         `,
         createdBy: followInput.userId,
         targetUserId: followInput.targetUserId,
-        action: `/klader/${sender.username}`,
+        action: sender.permissions.includes('user')
+          ? `/klader/${sender.username}`
+          : `/page/${sender.username}`,
       },
     };
 

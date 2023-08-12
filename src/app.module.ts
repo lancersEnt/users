@@ -10,13 +10,13 @@ import {
   EmailAddressResolver,
   PhoneNumberResolver,
 } from 'graphql-scalars';
-import { Neo4jModule } from '@nhogs/nestjs-neo4j';
 import { PrismaService } from 'prisma/prisma.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SocialLinksModule } from './social-links/social-links.module';
 import { KafkaService } from './kafka/kafka.service';
+import { Neo4jModule } from '@nhogs/nestjs-neo4j';
 
 @Module({
   imports: [

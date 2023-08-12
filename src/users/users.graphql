@@ -38,6 +38,8 @@ type User @key(fields: "id"){
   following: [User]
   pages: [User]
   managers: [User]
+  ownerId: String
+  owner: User
   createdAt: DateTime
   updatedAt: DateTime
 }

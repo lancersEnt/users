@@ -11,6 +11,7 @@ const getSender = async (id: string) => {
             username
             firstname
             lastname
+            permissions
           }
         }
       `,
