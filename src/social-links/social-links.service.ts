@@ -12,7 +12,6 @@ import { KafkaService } from 'src/kafka/kafka.service';
 import { FollowNotification } from './interfaces/follow-notification.interface';
 import { capitalize } from 'lodash';
 import getSender from 'src/utils/getSender';
-import { log } from 'console';
 
 @Injectable()
 export class SocialLinksService {
@@ -55,7 +54,7 @@ export class SocialLinksService {
       throw new InternalServerErrorException('Could not create user node.');
     }
     if (addPage.records.length === 1) {
-      const queryResult = await this.neo4j.run(
+      await this.neo4j.run(
         {
           cypher: `
                   MATCH
