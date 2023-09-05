@@ -8,6 +8,8 @@ import { v4 as uuid } from 'uuid';
 import { ForgotPassword } from './event-payload/forgot-password.event.';
 import { KafkaService } from 'src/kafka/kafka.service';
 import { error, log } from 'console';
+import { UpdatePasswordInput } from 'src/graphql';
+import { PasswordChanged } from './event-payload/password-changed.event';
 
 @Injectable()
 export class UsersService {
@@ -90,6 +92,18 @@ export class UsersService {
     }
   }
 
+  experts() {
+    try {
+      return this.prisma.user.findMany({
+        where: {
+          permissions: { has: 'expert' },
+        },
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   findOne(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
     try {
       return this.prisma.user.findUnique({
@@ -98,6 +112,14 @@ export class UsersService {
     } catch (error) {
       throw new Error(error.message);
     }
+  }
+
+  findAllUsers() {
+    return this.prisma.user.findMany({
+      where: {
+        permissions: { has: 'user' },
+      },
+    });
   }
 
   async findOneByEmail(email: string) {
@@ -191,31 +213,44 @@ export class UsersService {
    */
   async addPermission(
     permission: string,
-    username: string,
+    userId: string,
   ): Promise<User | undefined> {
-    if (!(permission in ['user', 'expert', 'admin']))
+    if (!['user', 'expert', 'admin'].includes(permission)) {
       throw new Error(
-        'not a valid permission, permission should be one of; user, expert & admin',
+        'Not a valid permission. Permission should be one of: user, expert, admin',
       );
-    const user = await this.findOneByUsername(username);
-    if (!user) throw new Error('user not found');
-    if (user.permissions.includes(permission))
-      throw new Error('already has permission');
+    }
+
+    const user = await this.findOne({ id: userId });
+
+    if (!user) {
+      return undefined; // User not found, return undefined
+    }
+
+    const permissions = user.permissions;
+
+    if (permissions.includes(permission)) {
+      throw new Error('Already has permission');
+    }
+
     try {
-      user.permissions.push(permission);
-      this.prisma.user.update({
+      await this.prisma.user.update({
         where: {
           id: user.id,
         },
         data: {
-          permissions: user.permissions,
+          permissions: [...permissions, permission], // Update permissions in the database
           updatedAt: new Date().toISOString(),
         },
       });
+
+      // Update the local permissions array if the database update is successful
+      user.permissions.push(permission);
+
+      return user; // Return the updated user
     } catch (error) {
       throw new Error(error.message);
     }
-    return user;
   }
 
   /**
@@ -229,25 +264,38 @@ export class UsersService {
    */
   async removePermission(
     permission: string,
-    username: string,
+    userId: string,
   ): Promise<User | undefined> {
-    const user = await this.findOneByUsername(username);
-    if (!user) throw new Error('user not found');
-    if (!(permission in user.permissions))
-      throw new Error('user does not have the permission');
+    const user = await this.findOne({ id: userId });
+
+    if (!user) {
+      return undefined; // User not found, return undefined
+    }
+
+    if (!user.permissions.includes(permission)) {
+      throw new Error('User does not have the permission');
+    }
+
+    // Remove the permission from the user's permissions array
     user.permissions = user.permissions.filter(
       (userPermission) => userPermission !== permission,
     );
-    this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        permissions: user.permissions,
-        updatedAt: new Date().toISOString(),
-      },
-    });
-    return user;
+
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          permissions: user.permissions,
+          updatedAt: new Date().toISOString(),
+        },
+      });
+
+      return user; // Return the updated user
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   /**
@@ -389,5 +437,99 @@ export class UsersService {
         password: await this.passwordUtils.hash(password),
       },
     });
+  }
+
+  /**
+   * changes logged in user password
+   * checks if provided userId is valid
+   * compares old password with the old password provided
+   * changes password if the comparison succeeds
+   *
+   * @param {string} userId userId
+   * @param {UpdatePasswordInput} updatePasswordInput contains old and new passwords
+   * @returns {string} returns 'success' if password changed,
+   * 'old password mismatch' in case of wrong old password
+   * and 'user not found' in case bad userId
+   * @memberof UsersService
+   */
+  async updatePassword(
+    userId: string,
+    updatePasswordInput: UpdatePasswordInput,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user) {
+      const confirmPW = await this.passwordUtils.compare(
+        updatePasswordInput.oldPassword,
+        user.password,
+      );
+      if (confirmPW) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            password: await this.passwordUtils.hash(
+              updatePasswordInput.password,
+            ),
+          },
+        });
+        const password_changed: PasswordChanged = {
+          payload: {
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
+          },
+          template: 'password-changed',
+        };
+        await this.kafkaService.produce(
+          'password_changed',
+          JSON.stringify(password_changed),
+        );
+        return 'success';
+      } else return 'old password mismatch';
+    } else return 'user not found';
+  }
+
+  /**
+   * Adds balance to logged in user
+   * checks if provided userId is valid
+   * adds provided amout to user with provided id
+   *
+   * @param {string} userId userId
+   * @param {number} amount contains old and new passwords
+   * @returns {string} returns 'success' if balance updated
+   * and 'user not found' in case bad userId
+   * @memberof UsersService
+   */
+  async updateBalance(userId: string, amount: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (user) {
+      if (user.balance + amount < 0) {
+        return 'insufficient funds';
+      } else {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: { balance: user.balance + amount },
+        });
+        return 'success';
+      }
+    }
+    return 'user not found';
+  }
+
+  async blockUnblockUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (user && !user.permissions.includes('admin'))
+      return this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          isActive: !user.isActive,
+        },
+      });
   }
 }

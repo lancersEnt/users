@@ -18,6 +18,7 @@ model User {
   password            String
   username            String        @unique
   dateOfBirth         DateTime?
+  balance             Float?        @default(0)
   sex                 String?
   profilePictureUrl   String        @default("")
   city                String        @default("")

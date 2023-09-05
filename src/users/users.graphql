@@ -18,6 +18,7 @@ type User @key(fields: "id"){
   id: ID!
   firstname: String
   lastname: String
+  balance: Float
   email: EmailAddress
   password: String
   username: String
@@ -78,11 +79,17 @@ input UpdateUserInput {
   updatedAt: DateTime
 }
 
+input UpdatePasswordInput {
+  oldPassword: String!
+  password: String!
+}
+
 extend type Query {
   users: [User]!
   user(id: String!): User
   findByUsername(username:String!):User
   findPageByUsername(username:String!):User
+  experts: [User]!
   me: User
 }
 
@@ -92,6 +99,11 @@ type Mutation {
   activateUserAccount(activationToken: String!): User!
   forgotPassword(email: String!): User!
   resetPassword(token: String!, password: String!): User!
+  updatePassword(updatePasswordInput: UpdatePasswordInput): String!
+  updateBalance(amount: Int): String!
+  blockUnblockUser(userId:String): User
+  addExpertPermission(userId: String): User
+  removeExpertPermission(userId: String): User
   updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
   removeUser(id: String!): User
 }

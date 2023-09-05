@@ -10,12 +10,13 @@ import {
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
-import { User } from '../graphql';
+import { UpdatePasswordInput, User } from '../graphql';
 import { SocialLinksService } from 'src/social-links/social-links.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { log } from 'console';
 import { UserGuard } from 'src/auth/guards/user.guard';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
 
 @Resolver('User')
 export class UsersResolver {
@@ -82,9 +83,14 @@ export class UsersResolver {
   }
 
   @Query('users')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findAllUsers();
+  }
+
+  @Query('experts')
+  experts() {
+    return this.usersService.experts();
   }
 
   @Query('user')
@@ -100,6 +106,28 @@ export class UsersResolver {
     return await this.usersService.findOne({ id });
   }
 
+  @Mutation('updatePassword')
+  @UseGuards(JwtAuthGuard)
+  async updatePassword(
+    @Context() context: any,
+    @Args('updatePasswordInput') updatePasswordInput: UpdatePasswordInput,
+  ) {
+    const { req: request, res } = context;
+    const id: string = request.user.id;
+    log(id);
+    const d = await this.usersService.updatePassword(id, updatePasswordInput);
+    log(d);
+    return d;
+  }
+
+  @Mutation('updateBalance')
+  @UseGuards(JwtAuthGuard)
+  async updateBalance(@Context() context: any, @Args('amount') amount: number) {
+    const { req: request, res } = context;
+    const id: string = request.user.id;
+    return await this.usersService.updateBalance(id, amount);
+  }
+
   @Mutation('updateUser')
   update(
     @Args('id') id: string,
@@ -111,6 +139,24 @@ export class UsersResolver {
   @Mutation('removeUser')
   remove(@Args('id') id: string) {
     return this.usersService.remove({ id });
+  }
+
+  @Mutation('blockUnblockUser')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  blockUnblockUser(@Args('userId') userId: string) {
+    return this.usersService.blockUnblockUser(userId);
+  }
+
+  @Mutation('addExpertPermission')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  addExpertPermission(@Args('userId') userId: string) {
+    return this.usersService.addPermission('expert', userId);
+  }
+
+  @Mutation('removeExpertPermission')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  removeExpertPermission(@Args('userId') userId: string) {
+    return this.usersService.removePermission('expert', userId);
   }
 
   @ResolveReference()

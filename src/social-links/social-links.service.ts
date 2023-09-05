@@ -23,7 +23,13 @@ export class SocialLinksService {
   async createUserNode(user: PUser) {
     const queryResult = await this.neo4j.run(
       {
-        cypher: 'create (user:User {id: $id, email:$email}) return user',
+        cypher: `
+          CREATE (newUser:User {id: $id, email: $email})
+          WITH newUser
+          MATCH (interest:Interest)
+          CREATE (newUser)-[:INTERESTED_IN {score: 0}]->(interest)
+          RETURN newUser
+        `,
         parameters: {
           id: user.id,
           email: user.email,
@@ -300,7 +306,7 @@ export class SocialLinksService {
           // MATCH (following)<-[:FOLLOW*1]-(follow:User)
           // WHERE NOT (me)-[:FOLLOW]->(follow) AND me <> follow
           // RETURN DISTINCT follow as result, count (DISTINCT follow) as score
-          // ORDER BY score DESC
+          // ORDER BY score DESC LIMIT 5
         `,
       parameters: { user_id: discoverInput.userId },
     });

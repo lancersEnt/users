@@ -58,6 +58,11 @@ export class UpdateUserInput {
     updatedAt?: Nullable<DateTime>;
 }
 
+export class UpdatePasswordInput {
+    oldPassword: string;
+    password: string;
+}
+
 export abstract class IQuery {
     abstract refreshToken(): string | Promise<string>;
 
@@ -72,6 +77,8 @@ export abstract class IQuery {
     abstract findByUsername(username: string): Nullable<User> | Promise<Nullable<User>>;
 
     abstract findPageByUsername(username: string): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract experts(): Nullable<User>[] | Promise<Nullable<User>[]>;
 
     abstract me(): Nullable<User> | Promise<Nullable<User>>;
 }
@@ -99,6 +106,16 @@ export abstract class IMutation {
 
     abstract resetPassword(token: string, password: string): User | Promise<User>;
 
+    abstract updatePassword(updatePasswordInput?: Nullable<UpdatePasswordInput>): string | Promise<string>;
+
+    abstract updateBalance(amount?: Nullable<number>): string | Promise<string>;
+
+    abstract blockUnblockUser(userId?: Nullable<string>): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract addExpertPermission(userId?: Nullable<string>): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract removeExpertPermission(userId?: Nullable<string>): Nullable<User> | Promise<Nullable<User>>;
+
     abstract updateUser(id: string, updateUserInput: UpdateUserInput): User | Promise<User>;
 
     abstract removeUser(id: string): Nullable<User> | Promise<Nullable<User>>;
@@ -119,6 +136,7 @@ export class User {
     id: string;
     firstname?: Nullable<string>;
     lastname?: Nullable<string>;
+    balance?: Nullable<number>;
     email?: Nullable<EmailAddress>;
     password?: Nullable<string>;
     username?: Nullable<string>;
