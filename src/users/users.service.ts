@@ -7,7 +7,7 @@ import { UserCreated } from './event-payload/user-created.event';
 import { v4 as uuid } from 'uuid';
 import { ForgotPassword } from './event-payload/forgot-password.event.';
 import { KafkaService } from 'src/kafka/kafka.service';
-import { error, log } from 'console';
+import { log } from 'console';
 import { UpdatePasswordInput } from 'src/graphql';
 import { PasswordChanged } from './event-payload/password-changed.event';
 import SearchService from 'src/search/search.service';
