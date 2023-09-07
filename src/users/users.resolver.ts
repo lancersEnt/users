@@ -43,7 +43,7 @@ export class UsersResolver {
     @Context() context: any,
   ) {
     log(createUserInput);
-    const { req, res } = context;
+    const { req } = context;
     const id: string = req.user.id;
     log(id);
     const exists = await this.usersService.findOneByEmail(
@@ -106,7 +106,7 @@ export class UsersResolver {
   @Query('me')
   @UseGuards(JwtAuthGuard)
   async me(@Context() context: any) {
-    const { req: request, res } = context;
+    const { req: request } = context;
     const id: string = request.user.id;
     return await this.usersService.findOne({ id });
   }
@@ -117,7 +117,7 @@ export class UsersResolver {
     @Context() context: any,
     @Args('updatePasswordInput') updatePasswordInput: UpdatePasswordInput,
   ) {
-    const { req: request, res } = context;
+    const { req: request } = context;
     const id: string = request.user.id;
     log(id);
     const d = await this.usersService.updatePassword(id, updatePasswordInput);
@@ -128,7 +128,7 @@ export class UsersResolver {
   @Mutation('updateBalance')
   @UseGuards(JwtAuthGuard)
   async updateBalance(@Context() context: any, @Args('amount') amount: number) {
-    const { req: request, res } = context;
+    const { req: request } = context;
     const id: string = request.user.id;
     return await this.usersService.updateBalance(id, amount);
   }
@@ -174,22 +174,22 @@ export class UsersResolver {
     return this.usersService.findOne({ id });
   }
 
-  @ResolveField('followers', (returns) => [User])
+  @ResolveField('followers', () => [User])
   followers(@Parent() user: User): Promise<User[]> {
     return this.socialLinksService.userFollowers(user.id);
   }
 
-  @ResolveField('following', (returns) => [User])
+  @ResolveField('following', () => [User])
   following(@Parent() user: User): Promise<User[]> {
     return this.socialLinksService.userFollowing(user.id);
   }
 
-  @ResolveField('pages', (returns) => [User])
+  @ResolveField('pages', () => [User])
   pages(@Parent() user: User): Promise<User[]> {
     return this.socialLinksService.userPages(user.id);
   }
 
-  @ResolveField('managers', (returns) => [User])
+  @ResolveField('managers', () => [User])
   managers(@Parent() user: User): Promise<User[]> {
     return this.socialLinksService.pageManagers(user.id);
   }

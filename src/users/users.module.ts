@@ -6,7 +6,7 @@ import { SocialLinksModule } from 'src/social-links/social-links.module';
 import { SocialLinksService } from 'src/social-links/social-links.service';
 import { PasswordUtils } from 'src/utils/password.utils';
 import { KafkaService } from 'src/kafka/kafka.service';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
 import { SearchModule } from 'src/search/search.module';
 
