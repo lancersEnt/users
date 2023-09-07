@@ -91,6 +91,7 @@ extend type Query {
   findPageByUsername(username:String!):User
   experts: [User]!
   me: User
+  searchForUsers(text: String): [User]!
 }
 
 type Mutation {

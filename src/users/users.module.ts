@@ -6,11 +6,12 @@ import { SocialLinksModule } from 'src/social-links/social-links.module';
 import { SocialLinksService } from 'src/social-links/social-links.service';
 import { PasswordUtils } from 'src/utils/password.utils';
 import { KafkaService } from 'src/kafka/kafka.service';
-import { JwtService } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
+import { SearchModule } from 'src/search/search.module';
 
 @Module({
-  imports: [SocialLinksModule, AuthModule],
+  imports: [SocialLinksModule, AuthModule, SearchModule, JwtModule],
   providers: [
     UsersResolver,
     UsersService,
@@ -18,7 +19,6 @@ import { AuthModule } from 'src/auth/auth.module';
     SocialLinksService,
     PasswordUtils,
     KafkaService,
-    JwtService,
   ],
 })
 export class UsersModule {}

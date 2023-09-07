@@ -54,6 +54,11 @@ export class UsersResolver {
     throw new Error('User/Page with given email already exists');
   }
 
+  @Query('searchForUsers')
+  searchForUsers(@Args('text') text: string) {
+    return this.usersService.searchForUsers(text);
+  }
+
   @Mutation('activateUserAccount')
   activateUserAccount(@Args('activationToken') activationToken: string) {
     return this.usersService.activate({ activationToken });

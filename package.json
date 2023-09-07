@@ -24,10 +24,12 @@
   "dependencies": {
     "@apollo/server": "^4.7.4",
     "@apollo/subgraph": "^2.4.7",
+    "@elastic/elasticsearch": "^7.9.1",
     "@nestjs/apollo": "^11.0.6",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.4",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/elasticsearch": "^10.0.1",
     "@nestjs/event-emitter": "^1.4.2",
     "@nestjs/graphql": "^11.0.6",
     "@nestjs/jwt": "^10.0.3",

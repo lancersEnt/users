@@ -81,6 +81,8 @@ export abstract class IQuery {
     abstract experts(): Nullable<User>[] | Promise<Nullable<User>[]>;
 
     abstract me(): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract searchForUsers(text?: Nullable<string>): Nullable<User>[] | Promise<Nullable<User>[]>;
 }
 
 export abstract class IMutation {

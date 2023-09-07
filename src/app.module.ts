@@ -17,6 +17,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SocialLinksModule } from './social-links/social-links.module';
 import { KafkaService } from './kafka/kafka.service';
 import { Neo4jModule } from '@nhogs/nestjs-neo4j';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -42,9 +43,10 @@ import { Neo4jModule } from '@nhogs/nestjs-neo4j';
       password: 'test',
       global: true,
     }),
-    UsersModule,
     AuthModule,
+    UsersModule,
     SocialLinksModule,
+    SearchModule,
   ],
   providers: [PrismaService, KafkaService],
 })

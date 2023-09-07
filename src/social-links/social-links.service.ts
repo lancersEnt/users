@@ -320,10 +320,13 @@ export class SocialLinksService {
           id: { in: ids },
         },
       });
-      const sortedUsers = ids.map((id) =>
-        suggestedUsers.find((user) => user.id === id),
-      );
-      return sortedUsers;
+      // Create a map of ids to their corresponding klads for efficient lookup
+      const usersMap = new Map(suggestedUsers.map((user) => [user.id, user]));
+
+      // Sort the klads array based on the order of ids
+      const sortedusers = ids.map((id) => usersMap.get(id));
+
+      return sortedusers;
     }
   }
 }

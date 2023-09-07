@@ -10,6 +10,7 @@ import { KafkaService } from 'src/kafka/kafka.service';
 import { error, log } from 'console';
 import { UpdatePasswordInput } from 'src/graphql';
 import { PasswordChanged } from './event-payload/password-changed.event';
+import SearchService from 'src/search/search.service';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +19,7 @@ export class UsersService {
     private socialLinksService: SocialLinksService,
     private passwordUtils: PasswordUtils,
     private readonly kafkaService: KafkaService,
+    private readonly searchService: SearchService,
   ) {}
 
   async create(createUserInput: Prisma.UserCreateInput) {
@@ -33,6 +35,8 @@ export class UsersService {
           activationTokenExp: tomorrow,
         },
       });
+
+      this.searchService.indexUser(user);
 
       //**create user node in neo4j db */
       await this.socialLinksService.createUserNode(user);
@@ -75,6 +79,8 @@ export class UsersService {
         },
       });
 
+      this.searchService.indexUser(user);
+
       //**create page node in neo4j db */
       await this.socialLinksService.createPageNode(user, ownerId);
 
@@ -82,6 +88,30 @@ export class UsersService {
     } catch (error) {
       throw new Error(error.message);
     }
+  }
+
+  async searchForUsers(text: string) {
+    const u = await this.prisma.user.findMany({});
+    u.forEach((user) => {
+      this.searchService.indexUser(user);
+    });
+    const results: any[] = await this.searchService.search(text);
+    log(results);
+    const ids = results.map((result) => result.id);
+    if (!ids.length) {
+      return [];
+    }
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: ids } },
+    });
+
+    // Create a map of ids to their corresponding users for efficient lookup
+    const usersMap = new Map(users.map((user) => [user.id, user]));
+
+    // Sort the users array based on the order of ids
+    const sortedUsers = ids.map((id) => usersMap.get(id));
+
+    return sortedUsers;
   }
 
   findAll() {

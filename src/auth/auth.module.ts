@@ -10,6 +10,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { SocialLinksService } from 'src/social-links/social-links.service';
 import { PasswordUtils } from 'src/utils/password.utils';
 import { KafkaService } from 'src/kafka/kafka.service';
+import { SearchModule } from 'src/search/search.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { KafkaService } from 'src/kafka/kafka.service';
       },
     }),
     forwardRef(() => UsersModule),
+    SearchModule,
   ],
   providers: [
     AuthService,
